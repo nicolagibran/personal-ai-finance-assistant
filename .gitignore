@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Credentials and secrets
+credentials.json
+secrets/
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
