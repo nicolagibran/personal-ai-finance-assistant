@@ -41,6 +41,15 @@ I designed and built the workflow, including:
 5. Save the records to Google Sheets.
 6. Display financial data through Looker Studio.
 
+## Workflow Overview
+
+![Workflow Overview](screenshots/workflow-overview.png)
+
+## Dashboard Preview
+
+![Dashboard Preview](screenshots/dashboard-preview(1).png)
+![Dashboard Preview](screenshots/dashboard-preview(2).png)
+
 ## Current Status
 
 The system is working as a personal finance assistant. Formal benchmarks for extraction accuracy and time savings have not yet been conducted.
