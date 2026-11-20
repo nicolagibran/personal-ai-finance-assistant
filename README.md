@@ -47,8 +47,8 @@ I designed and built the workflow, including:
 
 ## Dashboard Preview
 
-![Dashboard Preview](screenshots/dashboard-preview(1).png)
-![Dashboard Preview](screenshots/dashboard-preview(2).png)
+![Dashboard Preview](screenshots/dashboard-preview (1).png)
+![Dashboard Preview](screenshots/dashboard-preview (2).png)
 
 ## Current Status
 
