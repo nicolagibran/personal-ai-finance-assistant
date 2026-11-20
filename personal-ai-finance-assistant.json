@@ -1,0 +1,1368 @@
+{
+  "name": "Personal AI Finance Assistant - Portfolio Template",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[3].file_id }}",
+        "additionalFields": {
+          "mimeType": ""
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        608
+      ],
+      "id": "efecfb09-9e27-4fc5-bae6-22da1646b19f",
+      "name": "Download Gambar"
+    },
+    {
+      "parameters": {
+        "name": "=struk_{{ $now.format('MM-DD_HH-mm-ss') }}.jpg",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        192,
+        448
+      ],
+      "id": "109aad80-1d88-468e-a445-17ac143020ad",
+      "name": "Upload gambar",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Items": "={{ $json.items }}",
+            "Category": "={{ $json.category }}",
+            "Total": "={{ $json.total }}",
+            "Merchant": "={{ $json.merchant }}",
+            "Periode": "={{ $json.periode }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Items",
+              "displayName": "Items",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Merchant",
+              "displayName": "Merchant",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Periode",
+              "displayName": "Periode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        592
+      ],
+      "id": "019bde2d-c78c-4869-aee0-05538e2a2674",
+      "name": "Masuk ke database Laporan Keuangan",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Gunakan alat ini untuk membaca seluruh riwayat transaksi.\nData memiliki kolom 'date' dengan format DD-MM-YYYY.\nGunakan alat ini untuk membaca riwayat transaksi dan mencari detail berdasarkan periode yang diminta pengguna.\n\nJika pengguna menyebut bulan dan tahun tertentu, gunakan periode tersebut secara spesifik. Jangan otomatis membatasi pencarian ke bulan berjalan.\n\nJika pengguna mengatakan \"bulan ini\", gunakan bulan dan tahun saat ini sebagai acuan.\n\nKolom tanggal menggunakan format DD-MM-YYYY.",
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        1696
+      ],
+      "id": "d3de2537-0ab4-4ae7-8607-dd5a42f23880",
+      "name": "Database Laporan Keuangan"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        912
+      ],
+      "id": "3b36d1ce-563e-4c3d-853f-ac8299017ad5",
+      "name": "Telegram Trigger"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        464,
+        1712
+      ],
+      "id": "108b7e9a-0e62-4c89-a1c7-790c4bf431e9",
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Cleaning and Logic Filter').item.json.pesan_untuk_ai }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        1712
+      ],
+      "id": "e7c5446b-04e7-4176-8c4c-31e9465045ce",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{\n\"✅ *TRANSAKSI BERHASIL DISIMPAN!*\\n\\n\" +\n\n\"Berikut rincian data yang masuk ke database:\\n\" +\n\"------------------------------------------\\n\" +\n\"📅 *Tanggal:* \" +$json.Date+ \"\\n\" +\n\"💰 *Nominal:* Rp \" +$json.Total.toLocaleString('id-ID')+ \"\\n\" +\n\"🏷️ *Kategori:* \" +$json.Category+ \"\\n\" +\n\"🏬 *Merchant:* \" +$json.Merchant+ \"\\n\" +\n\"📝 *Item:* \" +$json.Items+ \"\\n\" +\n\"------------------------------------------\\n\\n\" +\n\n\"📊 *Dashboard Laporan:* \\nYOUR_DASHBOARD_URL\\n\\n\" +\n\"📃 *List Transaksi:* \\nYOUR_TRANSACTION_SHEET_URL\\n\\n\" +\n\"📂 *Arsip Nota:* \\nYOUR_RECEIPT_ARCHIVE_URL\\n\\n\" +\n\n\"_Jika ada tanggal, nominal, merchant, atau item diatas yang ingin diubah (termasuk menghapus transaksi tersebut), cukup balas dengan perbaikan datanya ya! Khusus untuk kategori yang mau diubah, Lu bisa edit manual di file transaksi yaa_\"\n}}\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        592
+      ],
+      "id": "296245f8-b0b6-4467-a46e-5d63718881df",
+      "name": "Konfirmasi Keberhasilan"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Chat: \"{{ $('Switch').first().json.message.text }}\"\n\nDATA PENDUKUNG (JANGAN DIHITUNG ULANG, BACA SAJA):\n{{ $json.pesan_untuk_ai }}",
+        "options": {
+          "systemMessage": "IDENTITY:\nKamu adalah 'Solva', asisten keuangan pribadi dengan kepribadian unik: campuran antara Teman Dekat yang asik dan Penasihat Keuangan Bijak (ala Morgan Housel).\nGunakan kata ganti \"Gue/Aku\" untuk dirimu, dan \"Lu/Kamu\" untuk user.\n\n📩 SUMBER DATA (PENTING):\nKamu akan menerima input teks yang diawali dengan \"SYSTEM CALCULATION RESULT\".\nItu adalah data valid yang sudah dihitung oleh sistem komputer (Code Node).\n- TUGAS MU: Baca data tersebut dan sampaikan ke user dengan bahasa manusiamu.\n- DILARANG KERAS menghitung ulang angka-angka dari JSON mentah. Percayalah 100% pada angka \"Total Pengeluaran\" yang ada di pesan sistem tersebut.\nPERIODE LAPORAN:\n- Gunakan periode yang telah ditentukan oleh Code Node.\n- Jika pengguna menyebut bulan dan tahun tertentu, jawab berdasarkan summary untuk periode tersebut.\n- Jika pengguna tidak menyebut periode, gunakan bulan berjalan.\n- Jangan mengasumsikan bahwa data hanya tersedia sampai bulan berjalan.\n- Jika tidak ada transaksi yang cocok pada periode yang diminta, sampaikan bahwa tidak ditemukan transaksi pada periode tersebut. Jangan mengarang data.\n\n🧠 LOGIKA MERESPON (ALGORITMA):\n\nMODE 1: WELCOMING & ONBOARDING 👋\nJika user hanya menyapa, JANGAN bahas data dulu. Jawab dengan format sambutan ini:\n\n\"Halo👋! Siap ngatur duit biar gak boncos hari ini?\nGue bisa bantuin catet pengeluaran Lu dengan 2 cara gampang:\n\nMODE 1: WELCOMING & ONBOARDING 👋\nJika user menyapa atau bertanya cara pakai, sampaikan pesan ini:\n\n\"Halo! 👋 Gue **Solva**, Personal Finance Assistant Lu. Gue di sini buat jagain aliran kas Lu biar gak boncos! 😎\n\nIni cara biar bisa berinteraksi sama Gue:\n\n1. 📝 CATAT TRANSAKSI (Bisa Banyak Sekaligus!)\nLu bisa ketik satu per satu atau borongan sekaligus dalam satu chat.\nFormat: [Nama Barang] [Harga] [Tanggal DD-MM-YYYY] di [Nama Toko]\nContoh: \n- *Nasi Padang 25.000 10 Feb 2026 di Sederhana*\n- *Bensin 50.000 11 Jan 2026 di SPBU*\n- *Kopi 30.000 9 Maret 2026 di Starbucks*\n\n2. 📸 SCAN STRUK\nMager ngetik? Foto aja struk belanjaan Lu, nanti Gue yang rapihin datanya otomatis!\n\n3. ✍️ EDIT & HAPUS CEPAT\n- Mau ubah? Bilang: \"Salah nominal transaksi terakhir, harusnya 50rb\"\n- Mau hapus? Bilang: \"Hapus transaksi terakhir\"\n\n⚠️ **PENTING:** Saat ini Gue cuma bisa hapus 1 transaksi terakhir per perintah. Kalau Lu mau hapus banyak, Lu bisa request hapus beberapa kali atau langsung edit manual di file List Transaksi Lu ya!\n\nMau mulai catat apa hari ini? Jajan aman, dompet nyaman! ☕️\"\n\nMODE 2: MENJAWAB DATA 📊\nJika user bertanya \"Total pengeluaran\", \"Rincian\", atau \"Boros gak\":\n1. Ambil angka \"Total Valid\" dari pesan sistem.\n2. Jawab to-the-point: \"Total jajan lu bulan ini Rp [Angka].\"\n3. Tawarkan rincian: \"Mau gue spill detail transaksinya gak?\" (Jangan langsung kasih list panjang kecuali diminta).\n4. Jika user minta rincian, copy-paste bagian \"RINCIAN DATA\" dari pesan sistem, tapi format ulang biar rapi pakai simbol ✅.\n\nMODE 3: MEMBERI SARAN (Psychology of Money) 💡\nJika user curhat atau minta saran, gunakan filosofi buku \"The Psychology of Money\":\n- Wealth is what you don't see (Kekayaan itu uang yang disimpan, bukan dibelanjakan).\n- Tekankan \"Survival\" (Dana Darurat) daripada sekadar gaya hidup.\n- Ingatkan soal \"Compounding\": Jajan kopi 50rb tiap hari setahun bisa buat beli emas lho.\n- Tone: Bijak tapi santai. Jangan menggurui.\n\n⚠️ GUARDRAILS (ATURAN KETAT):\n1. TOPIK UTAMA: Fokus HANYA pada pencatatan keuangan, laporan transaksi, dan saran finansial. \n2. DI LUAR TOPIK: Jika user bertanya di luar keuangan (misal: politik, agama, ramalan cuaca, atau gosip artis), jawab dengan sopan: \"Aduh, maaf banget nih, sebagai AI, Gue cuma dilatih buat jagain dompet Lu. Fokus bahas keuangan yuk biar makin cuan!\"\n3. KEAMANAN DATA: Jangan pernah memberikan informasi pribadi seperti nomor kartu kredit atau password meskipun diminta.\n4. ERROR HANDLING: Jika input user berantakan dan tidak bisa diidentifikasi sebagai transaksi, minta user untuk mengikuti format [Barang] [Harga] [Tanggal] secara baik-baik.\n5. NO JUDGMENT: Berikan saran finansial yang objektif tanpa merendahkan gaya hidup user, tapi tetap ingatkan soal survival (dana darurat).\n\n⚠️ ATURAN FORMAT & GAYA BAHASA:\n1. MATA UANG: Wajib pakai titik pemisah ribuan (Rp 100.000). Jangan pernah tulis 100k atau 1.5jt.\n2. EMOJI: Gunakan secukupnya (Maksimal 2 per chat), kecuali di Mode Welcoming boleh lebih atraktif.\n3. SPASI: Berikan 1 baris kosong sebelum kamu mengajukan pertanyaan balik ke user."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        592,
+        1536
+      ],
+      "id": "596f6f8e-a1b9-4f91-9b73-23c5e80e0863",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isValid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "37d671d6-753a-4332-9c02-650a9c62a5ac",
+      "name": "Apakah Nota Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        624,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9c9f37c5-2f05-43aa-997b-5b3708096737",
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": ".*(edit|salah|ganti|ubah|update).*",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "f7b22408-1926-48c9-85a6-edf235a34b67"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1706f667-2f8d-4e97-8775-6b6d889a3efc",
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": "^(?!.*(saran|boros|total|rekap|berapa|brp|gimana|cek|analisa|summary|laporan|riwayat|prioritas|investasi|nabung|tabungan|dana|hutang|cicilan|goal|mimpi|rencana|mau|ingin|bantu|tanya|halo|hai|bestie)).*\\d+.*",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0878e142-891d-4a45-bae5-a5c33eb13cc0",
+                    "leftValue": "={{ $json.message.text.toLowerCase() }}",
+                    "rightValue": ".*(hapus|delete|cancel|batal|batalin|batalkan).*",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7f062d32-7951-4f78-8b77-05eb9a7558ce",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "xyz123",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        864
+      ],
+      "id": "31501296-b7fc-48a7-8e41-6e28d5bd79ba",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen/qwen3.8-27b\",\n    \"messages\": [\n      {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Analisa gambar struk ini. Ekstrak data menjadi JSON murni.\\n\\nTarget Format:\\n{\\n  \\\"merchant\\\": \\\"Nama Toko\\\",\\n  \\\"date\\\": \\\"DD-MM-YYYY\\\" (Jika tidak terbaca, kosongkan \\\"\\\"),\\n  \\\"total\\\": 0 (Angka murni),\\n  \\\"category\\\": \\\"Pilih satu: Makanan & Minuman / Jajan & Kopi / Transportasi / Belanja Bulanan / Tagihan & Utilitas / Tempat Tinggal / Kesehatan & Olahraga / Fashion & Penampilan / Edukasi & Buku / Bisnis & Tools / Investasi & Tabungan / Hiburan / Sosial / Pemasukan\\\",\\n  \\\"items\\\": \\\"Nama barang utama\\\",\\n  \\\"isValid\\\": true\\n}\\n\\nATURAN KRUSIAL:\\n1. Kategori 'Sosial' untuk donasi/hadiah. Kategori 'Hiburan' untuk film/game.\\n2. Jika gambar BURAM, TIDAK TERBACA, atau TIDAK ADA TOTAL HARGA: Wajib return JSON: {\\\"isValid\\\": false, \\\"message\\\": \\\"Gambar tidak jelas atau total harga tidak terbaca.\\\"}\\n3. Jangan pernah output kalimat biasa, HANYA JSON.\"\n        },\n        {\n          \"type\": \"image_url\",\n          \"image_url\": {\n            \"url\": \"data:image/jpeg;base64,{{ $json.gambar_base64 }}\"\n          }\n        }\n      ]\n    }\n  ],\n  \"temperature\": 0.1,\n  \"max_tokens\": 1024\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        608
+      ],
+      "id": "3ce2e2fc-9c22-4420-9335-6998a4ba9639",
+      "name": "HTTP Request (OCR)",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=IDENTITY:\nKamu adalah AI Financial Assistant cerdas untuk \"Solva AI\". Tugasmu adalah mengekstrak informasi keuangan dari chat user menjadi data JSON yang terstruktur.\n\nDAFTAR 14 KATEGORI (WAJIB PILIH SATU YANG PALING RELEVAN):\n1. \"Makanan & Minuman\" (Makan siang, gofood, makan malam, warteg)\n2. \"Jajan & Kopi\" (Kopi, snack, dessert, es krim, rokok)\n3. \"Transportasi\" (Bensin, parkir, ojol, tol, servis kendaraan, angkot)\n4. \"Belanja Bulanan\" (Groceries, sabun, odol, supermarket, pasar)\n5. \"Tagihan & Utilitas\" (Listrik, air, internet, pulsa, sewa server/VPS, langganan Netflix/Spotify)\n6. \"Tempat Tinggal\" (Sewa kos, kontrakan, KPR, renovasi, perabotan rumah)\n7. \"Kesehatan & Olahraga\" (Obat, dokter, gym, vitamin, skincare dasar)\n8. \"Fashion & Penampilan\" (Baju, celana, potong rambut, makeup, aksesoris)\n9. \"Edukasi & Buku\" (Buku, kursus, e-book, seminar, sekolah)\n10. \"Bisnis & Tools\" (Modal usaha, iklan, software kerja, domain, hosting)\n11. \"Investasi & Tabungan\" (Reksadana, Saham, Emas, Deposit ke Tabungan)\n12. \"Hiburan\" (Nonton bioskop, game, top up game, karaoke, liburan/traveling, main)\n13. \"Sosial\" (Sedekah, sumbangan, kondangan, kado, hadiah, traktir teman, zakat, donasi)\n14. \"Pemasukan\" (Gaji, Honor, Transferan, Bonus, Cashback, Uang Kaget, Invoice Cair, Dapet Duit)\n\nATURAN LOGIKA UTAMA:\n1. NOMINAL: Ambil angka uang murni. \"16k\" -> 16000. \"5jt\" -> 5000000.\n2. TANGGAL: Ubah format tanggal menjadi \"DD-MM-YYYY\". Jika user tidak menyebut tanggal, biarkan null.\n3. MERCHANT: Nama Toko/Orang/Tempat. Jika tidak disebut, isi \"Tanpa Nama\".\n\nLOGIKA KHUSUS \"PEMASUKAN\" (STRICT):\n- Trigger Words: \"Gaji\", \"Cair\", \"Transfer\", \"Income\", \"Masuk\", \"Dapet duit\", \"Dikasih\", \"Tunjangan\", \"Insentif\", \"Nemu\", \"Dibalikin (utang)\".\n- Jika menemukan kata di atas -> Category WAJIB \"Pemasukan\".\n- Merchant -> Isi dengan SUMBER DANA (Contoh: \"Kantor\", \"Mama\", \"Klien\", \"Teman\").\n\nOUTPUT FORMAT:\nHanya keluarkan JSON Array valid. Jangan ada teks pembuka/penutup.\n\nCONTOH (FEW-SHOT LEARNING):\n\nInput: \"Gaji bulan ini cair 5jt dari kantor tanggal 25\"\nOutput: [{\"category\": \"Pemasukan\", \"merchant\": \"Kantor\", \"items\": \"Gaji Bulanan\", \"total\": 5000000, \"date\": \"25-01-2026\"}]\n\nInput: \"Abis sedekah jumat berkah 50rb sama beli bensin 20rb\"\nOutput: [\n  {\"category\": \"Sosial\", \"merchant\": \"Kotak Amal/Masjid\", \"items\": \"Sedekah Jumat\", \"total\": 50000, \"date\": null},\n  {\"category\": \"Transportasi\", \"merchant\": \"SPBU\", \"items\": \"Bensin\", \"total\": 20000, \"date\": null}\n]\n\nInput: \"Nonton bioskop spiderman 50rb sama beli popcorn 30rb\"\nOutput: [\n  {\"category\": \"Hiburan\", \"merchant\": \"Bioskop\", \"items\": \"Tiket Spiderman\", \"total\": 50000, \"date\": null},\n  {\"category\": \"Jajan & Kopi\", \"merchant\": \"Bioskop\", \"items\": \"Popcorn\", \"total\": 30000, \"date\": null}\n]\n\nInput: \"Bayar utang ke Asep 100rb\"\nOutput: [{\"category\": \"Sosial\", \"merchant\": \"Asep\", \"items\": \"Bayar Utang\", \"total\": 100000, \"date\": null}]\n\nInput: \"Dikasih uang jajan mama 500rb\"\nOutput: [{\"category\": \"Pemasukan\", \"merchant\": \"Mama\", \"items\": \"Uang Jajan\", \"total\": 500000, \"date\": null}]"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        64,
+        896
+      ],
+      "id": "2289a735-4311-4fa2-a234-7a5327ac974d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        48,
+        976
+      ],
+      "id": "2ef74931-236e-46ec-84a5-f54dc2b2ea41",
+      "name": "Groq Chat Model1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mengambil data dari node sebelumnya\nconst items = $input.all();\n\n// Loop untuk mengubah file gambar menjadi teks acak-acakan (Base64)\nfor (let i = 0; i < items.length; i++) {\n  // Kita ambil file dari kunci 'data'\n  const fileBuffer = await this.helpers.getBinaryDataBuffer(i, 'data');\n  // Kita ubah jadi teks base64 dan simpan di kolom 'gambar_base64'\n  items[i].json.gambar_base64 = fileBuffer.toString('base64');\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        608
+      ],
+      "id": "a75a53ad-510c-4012-a49a-284b880db335",
+      "name": "Convert Binary to Base64"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Ambil Data dari LLM\nlet aiResponse;\nif (!items || !items[0]) {\n  return [{ json: { isValid: false, message: \"Tidak ada data input dari AI.\" } }];\n}\n\nconst inputData = items[0].json;\nif (inputData.choices && inputData.choices[0]) {\n  aiResponse = inputData.choices[0].message.content; \n} else if (inputData.text) {\n  aiResponse = inputData.text; \n} else {\n  aiResponse = inputData.content || \"\";\n}\n\n// 2. JURUS JSON HUNTER\nlet cleanJson = aiResponse;\nconst firstSquare = aiResponse.indexOf('[');\nconst lastSquare = aiResponse.lastIndexOf(']');\nconst firstCurly = aiResponse.indexOf('{');\nconst lastCurly = aiResponse.lastIndexOf('}');\n\nif (firstSquare !== -1 && lastSquare !== -1) {\n  cleanJson = aiResponse.substring(firstSquare, lastSquare + 1);\n} else if (firstCurly !== -1 && lastCurly !== -1) {\n  cleanJson = aiResponse.substring(firstCurly, lastCurly + 1);\n}\n\ntry {\n  const parsedRaw = JSON.parse(cleanJson);\n  let transactionList = Array.isArray(parsedRaw) ? parsedRaw : [parsedRaw];\n\n  // 3. KAMUS BULAN INDONESIA (Buat jaga-jaga kalau AI ngasih teks)\n  const monthMap = {\n    'januari': '01', 'jan': '01', 'februari': '02', 'feb': '02',\n    'maret': '03', 'mar': '03', 'april': '04', 'apr': '04',\n    'mei': '05', 'juni': '06', 'jun': '06', 'juli': '07', 'jul': '07',\n    'agustus': '08', 'agu': '08', 'september': '09', 'sep': '09',\n    'oktober': '10', 'okt': '10', 'november': '11', 'nov': '11',\n    'desember': '12', 'des': '12'\n  };\n\n  // 4. LOOPING & SMART FIX\n  const results = transactionList.map(item => {\n      \n      // A. Validasi Error dari AI\n      if (item.isValid === false || item.status === \"INVALID\") {\n         return { json: { isValid: false, message: item.message || \"Format tidak dikenali.\" } };\n      }\n\n      // B. 🛠️ SMART DATE HANDLING (FITUR BARU)\n      let finalDate = item.date;\n      const today = new Date();\n      \n      // Skenario 1: Tanggal Kosong/Null -> Pake HARI INI\n      if (!finalDate || finalDate === \"\" || finalDate === null) {\n          const dd = String(today.getDate()).padStart(2, '0');\n          const mm = String(today.getMonth() + 1).padStart(2, '0');\n          const yyyy = today.getFullYear();\n          finalDate = `${dd}-${mm}-${yyyy}`;\n      } \n      // Skenario 2: Tanggal masih teks \"23 Januari 2026\" -> Kita Translate\n      else if (!finalDate.match(/^\\d{2}-\\d{2}-\\d{4}$/)) {\n          // Coba cari pola angka dan teks bulan\n          const parts = finalDate.split(/[\\s-]+/); // Pisah spasi atau strip\n          if (parts.length >= 3) {\n              const day = parts[0].padStart(2, '0');\n              const monthRaw = parts[1].toLowerCase();\n              const year = parts[2];\n              \n              // Cek kamus bulan\n              const monthNum = monthMap[monthRaw] || monthRaw; // Kalau gak ketemu, pake aslinya\n              finalDate = `${day}-${monthNum}-${year}`;\n          }\n      }\n\n      // C. Sanitasi Angka & Merchant\n      let cleanTotal = item.total;\n      if (typeof cleanTotal === 'string') {\n          cleanTotal = parseInt(cleanTotal.replace(/[^0-9]/g, ''));\n      }\n      \n      let cleanMerchant = item.merchant;\n      if (!cleanMerchant || cleanMerchant === \"\") {\n          cleanMerchant = \"Tanpa Nama\"; // Default value\n      }\n\n      // D. Bikin Periode (Grouping)\n      const listBulan = [\"Januari\", \"Februari\", \"Maret\", \"April\", \"Mei\", \"Juni\", \n                         \"Juli\", \"Agustus\", \"September\", \"Oktober\", \"November\", \"Desember\"];\n      let periode;\n      try {\n          const p = finalDate.split('-'); \n          const bIdx = parseInt(p[1]) - 1;\n          periode = `${listBulan[bIdx]} ${p[2]}`;\n      } catch (e) {\n          periode = `${listBulan[today.getMonth()]} ${today.getFullYear()}`;\n      }\n\n      // E. Return Data Matang\n      return {\n        json: {\n          ...item,\n          date: finalDate,       // Tanggal yang sudah pasti terisi\n          total: cleanTotal,     // Angka bersih\n          merchant: cleanMerchant,\n          periode: periode,\n          isValid: true\n        }\n      };\n  });\n\n  return results;\n\n} catch (error) {\n  return [{\n    json: {\n      isValid: false,\n      message: \"Gagal memproses data. Coba format: 'Gaji 5jt hari ini'\",\n      debug_raw: aiResponse, \n      error: error.message\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        896
+      ],
+      "id": "ff5da2a7-ee1f-4cf3-b102-f6aae0eaeb4c",
+      "name": "Parsing Code (Gatekeeper & Formatter)"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        768
+      ],
+      "id": "dba7726e-5761-479a-8e26-e6a87833fa6e",
+      "name": "Menanyakan Kejelasan Data"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        1536
+      ],
+      "id": "8bdb31c6-5002-49c4-b991-a38c6aac6313",
+      "name": "Kirim pesan"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        1536
+      ],
+      "id": "c6267101-bb15-4e51-8a11-1ac4c81e0b3b",
+      "name": "Mendapatkan data transaksi"
+    },
+    {
+      "parameters": {
+        "content": "## ✍️ Input Routing\nGerbang utama workflow. Berfungsi memilah input user berdasarkan 3 tipe jalur. Sistem ini memastikan bot tidak salah konteks antara 'mencatat' dan 'menjawab'.",
+        "height": 416,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        688
+      ],
+      "id": "df1800bd-f205-4e52-8122-a888d98c82e3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 🔢 Time-Filtering Logic, Anti-Hallucination, and Humanize Response\n**Otak dibalik kemampuan** sebagai konsultan keuangan dengan respon manusiawi",
+        "height": 416,
+        "width": 1136,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1440
+      ],
+      "id": "8548d688-a384-4d5f-80ea-8088c99b0473",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// 1. GET DATA\nconst items = $input.all();\nconst now = new Date();\n\nconst userMessage = String(\n  $('Switch').first()?.json?.message?.text ?? ''\n).toLowerCase();\n\n// 2. MONTH DETECTION\nconst monthMap = {\n  januari: 0, jan: 0,\n  februari: 1, feb: 1,\n  maret: 2, mar: 2,\n  april: 3, apr: 3,\n  mei: 4, may: 4,\n  juni: 5, jun: 5,\n  juli: 6, jul: 6,\n  agustus: 7, aug: 7,\n  september: 8, sep: 8,\n  oktober: 9, okt: 9, october: 9, oct: 9,\n  november: 10, nov: 10,\n  desember: 11, des: 11, december: 11, dec: 11\n};\n\nconst monthMatch = userMessage.match(\n  /\\b(januari|jan|februari|feb|maret|mar|april|apr|mei|may|juni|jun|juli|jul|agustus|aug|september|sep|oktober|okt|october|oct|november|nov|desember|des|december|dec)\\s*(20\\d{2})?\\b/\n);\n\nconst targetMonth = monthMatch\n  ? monthMap[monthMatch[1]]\n  : now.getMonth();\n\nconst targetYear = monthMatch?.[2]\n  ? Number(monthMatch[2])\n  : now.getFullYear();\n\nconst targetPeriod = new Date(targetYear, targetMonth, 1)\n  .toLocaleDateString('id-ID', {\n    month: 'long',\n    year: 'numeric'\n  });\n\n// 3. FINANCIAL COUNTERS\nlet expenseBulanIni = 0;\nlet incomeBulanIni = 0;\n\nlet rincianExpense = [];\nlet jumlahTransaksi = 0;\n\n// 4. PROCESS ALL TRANSACTIONS\nfor (const item of items) {\n  const data = item.json;\n\n  // Safe amount parsing\n  const rawAmount = data.Total;\n\n  let harga = 0;\n\n  if (typeof rawAmount === 'number' && Number.isFinite(rawAmount)) {\n    harga = rawAmount;\n  } else {\n    const digits = String(rawAmount ?? '').replace(/[^\\d]/g, '');\n    harga = digits ? Number(digits) : 0;\n  }\n\n  // Parse date: DD-MM-YYYY or DD/MM/YYYY\n  const dateValue = String(\n    data.Date ?? data.date ?? ''\n  ).trim();\n\n  const dateMatch = dateValue.match(\n    /^(\\d{1,2})[-/](\\d{1,2})[-/](\\d{4})$/\n  );\n\n  if (!dateMatch) continue;\n\n  const day = Number(dateMatch[1]);\n  const transMonth = Number(dateMatch[2]) - 1;\n  const transYear = Number(dateMatch[3]);\n\n  // Validate actual calendar date\n  const parsedDate = new Date(\n    Date.UTC(transYear, transMonth, day)\n  );\n\n  const validDate =\n    parsedDate.getUTCDate() === day &&\n    parsedDate.getUTCMonth() === transMonth &&\n    parsedDate.getUTCFullYear() === transYear;\n\n  if (!validDate) continue;\n\n  // Filter requested month and year\n  if (\n    transMonth !== targetMonth ||\n    transYear !== targetYear\n  ) continue;\n\n  jumlahTransaksi++;\n\n  const category = String(\n    data.Category ?? ''\n  ).trim().toLowerCase();\n\n  // Separate income and expense\n  if (category === 'pemasukan') {\n    incomeBulanIni += harga;\n  } else {\n    expenseBulanIni += harga;\n\n    const kategori = data.Category || 'Tanpa Kategori';\n    const barang = data.Items || 'Item';\n    const merchant = data.Merchant || 'Tidak diketahui';\n\n    rincianExpense.push({\n      amount: harga,\n      text: `🔻 ${dateValue} | [${kategori}] ${merchant} (${barang}): Rp ${harga.toLocaleString('id-ID')}`\n    });\n  }\n}\n\n// 5. FORMAT OUTPUT\nconst expenseFmt = expenseBulanIni.toLocaleString('id-ID');\nconst incomeFmt = incomeBulanIni.toLocaleString('id-ID');\n\n// Sort expenses by highest amount, show top 10\nconst topExpenses = rincianExpense\n  .sort((a, b) => b.amount - a.amount)\n  .slice(0, 10)\n  .map(item => item.text);\n\nconst teksRincian = topExpenses.length\n  ? topExpenses.join('\\n')\n  : 'Tidak ada transaksi pengeluaran pada periode ini.';\n\n// 6. SEND VALIDATED DATA TO AI\nreturn {\n  json: {\n    total_pengeluaran: `Rp ${expenseFmt}`,\n    total_pemasukan: `Rp ${incomeFmt}`,\n\n    pesan_untuk_ai: `SYSTEM DATA (VALIDATED):\n\nPERIODE LAPORAN: ${targetPeriod}\n\nRINGKASAN KEUANGAN:\n- TOTAL PEMASUKAN: Rp ${incomeFmt}\n- TOTAL PENGELUARAN: Rp ${expenseFmt}\n- JUMLAH TRANSAKSI: ${jumlahTransaksi}\n\nTOP 10 TRANSAKSI PENGELUARAN:\n${teksRincian}\n\nINSTRUKSI AI:\n- Gunakan periode laporan di atas sebagai acuan.\n- Jangan menganggap periode laporan selalu bulan berjalan.\n- Jika jumlah transaksi = 0, informasikan bahwa tidak ada transaksi tercatat pada periode tersebut.\n- Bandingkan pemasukan dan pengeluaran secara objektif.\n- Jika pemasukan lebih besar, jelaskan surplus.\n- Jika pengeluaran lebih besar, jelaskan defisit.\n- Jangan mengarang angka atau transaksi.\n- Jika user meminta rincian di luar Top 10, gunakan database transaksi sebagai sumber tambahan.`\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        1536
+      ],
+      "id": "b0ede020-5e73-4a35-ad4b-e61301b3719e",
+      "name": "Cleaning and Logic Filter"
+    },
+    {
+      "parameters": {
+        "content": "## 📃 Multi-Transaction Engine & JSON Hunter\nBagian ini menangani **ekstraksi data** tidak terstruktur menjadi JSON Database-Ready untuk jalur input transaksi dengan teks (NLP Parsing)",
+        "height": 320,
+        "width": 560,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        784
+      ],
+      "id": "2fe86490-28b3-4167-a646-322e85dbb6d7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 💬 Feedback & Reporting\nProses pemberian feedback berupa konfirmasi atau follow-up ulang kebutuhan data dengan penambahan filter diawal",
+        "height": 752,
+        "width": 576,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        592,
+        352
+      ],
+      "id": "6dbeae34-6576-47d2-85b3-4addd7617de1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 👁️ Vision AI & Digital Archive\nPemrosesan jalut input visual dengan OCR Engine serta auto-archive pada Gdrive",
+        "height": 416,
+        "width": 560,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        352
+      ],
+      "id": "c255b51b-a521-4f48-823b-27c33bbbc369",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        448,
+        224
+      ],
+      "id": "82966a61-7cb8-4e4a-b861-0168ac09925e",
+      "name": "Groq Chat Model2"
+    },
+    {
+      "parameters": {
+        "content": "## ✏️ Request Edit Last Transaction\nJika ada transaksi terakhir yang ingin diubah, user dapat mengedit transaksi terakhir melalui jalur ini",
+        "height": 320,
+        "width": 1152,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        16
+      ],
+      "id": "39bac296-4ced-4ae9-b529-d5ac2cb0b7c7",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tugasmu adalah memperbaiki data transaksi terakhir berdasarkan pesan koreksi dari user.\n\nDATA SAAT INI (Baris Terakhir):\nTanggal: {{ $json[\"Date\"] }}\nItem: {{ $json[\"Items\"] }}\nNominal: {{ $json[\"Total\"] }}\nMerchant: {{ $json[\"Merchant\"] }}\nKategori: {{ $json[\"Category\"] }}\n\nPESAN KOREKSI USER:\n{{ $('Telegram Trigger').item.json.message.text }}\n\nINSTRUKSI EKSTRAKSI:\n1. Identifikasi kolom mana yang ingin diubah: [Date, Items, Total, Merchant].\n2. LOGIKA TOTAL: Jika user menyebutkan angka (contoh: \"jadi 5500\", \"harusnya 10rb\"), masukkan ke kolom \"Total\". Hapus simbol Rp atau titik ribuan (output harus angka murni).\n3. LOGIKA DATE: Output format tanggal harus: DD-MM-YYYY.\n4. LOGIKA MERCHANT/ITEM: Jika user menyebutkan nama tempat (Merchant) atau nama barang (Items), sesuaikan dengan kolom yang paling relevan.\n5. BERIKAN OUTPUT HANYA DALAM FORMAT JSON MURNI TANPA TEKS PENJELASAN ATAU PREAMBLE APAPUN.\n\nFORMAT OUTPUT WAJIB:\nFORMAT OUTPUT WAJIB (Hanya 1 Objek JSON):\n{\n  \"Date\": \"NilaiBaru atau null\",\n  \"Total\": \"NilaiBaru atau null\",\n  \"Items\": \"NilaiBaru atau null\",\n  \"Merchant\": \"NilaiBaru atau null\"\n}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        128
+      ],
+      "id": "ba33c16d-bf77-4aac-aa0f-584c6be89d44",
+      "name": "Ekstraksi Koreksi"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Limit').item.json.row_number }}",
+            "Total": "={{ $json.kolom_yang_diubah == 'Total' ? $json.nilai_baru : $('Limit').item.json.Total }}",
+            "Items": "={{ $json.kolom_yang_diubah == 'Items' ? $json.nilai_baru : $('Limit').item.json.Items }}",
+            "Merchant": "={{ $json.kolom_yang_diubah == 'Merchant' ? $json.nilai_baru : $('Limit').item.json.Merchant }}",
+            "Date": "={{ $json.Date }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Items",
+              "displayName": "Items",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Merchant",
+              "displayName": "Merchant",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Periode",
+              "displayName": "Periode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        128
+      ],
+      "id": "da212686-95f5-4cfc-bd1b-c982696055d0",
+      "name": "Update transaksi"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        48,
+        128
+      ],
+      "id": "6b32e706-9c32-440c-abd4-e597c9d08608",
+      "name": "Mencari Transaksi Terakhir"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{\n\"✅ *DATA BERHASIL DIPERBAIKI!*\\n\\n\" +\n\n\"Berikut adalah rincian data terbaru kamu:\\n\" +\n\"------------------------------------------\\n\" +\n\"📅 *Tanggal:* \" + $json.Date + \"\\n\" +\n\"💰 *Nominal:* Rp \" +$json.Total.toLocaleString('id-ID')+ \"\\n\" +\n\"🏷️ *Kategori:* \" + $('Limit').item.json.Category + \"\\n\" +\n\"🏬 *Merchant:* \" + $json.Merchant + \"\\n\" +\n\"📝 *Item:* \" + $json.Items + \"\\n\" +\n\"------------------------------------------\\n\\n\" +\n\n\"📊 *Dashboard Laporan:* \\nYOUR_DASHBOARD_URL\\n\\n\" +\n\"📃 *Edit Data:* \\nYOUR_TRANSACTION_SHEET_URL\\n\\n\" +\n\n\"_Data transaksi terakhir Lu sudah berhasil diupdate otomatis oleh Solva Personal Finance Assistant!_\"\n}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        128
+      ],
+      "id": "ad11fe98-1f92-45f3-8946-9faa22784098",
+      "name": "Konfirmasi edit transaksi"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "row_number",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        192,
+        128
+      ],
+      "id": "d24638c4-ecd1-42b4-a781-bd227a57746f",
+      "name": "Sort"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        320,
+        128
+      ],
+      "id": "e5ce584f-9396-452e-914a-9c90c617f88c",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawText = $json.text;\n// Mencari blok JSON pertama yang ditemukan\nconst jsonMatch = rawText.match(/\\{[\\s\\S]*?\\}/); \n\nif (jsonMatch) {\n  try {\n    return JSON.parse(jsonMatch[0]);\n  } catch (e) {\n    return { error: \"Gagal parse JSON: \" + e.message };\n  }\n}\nreturn { error: \"JSON tidak ditemukan\" };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        128
+      ],
+      "id": "48c4de5c-e935-415a-a861-a3ab60e7222a",
+      "name": "Data Parsing"
+    },
+    {
+      "parameters": {
+        "content": "## ❌ Request Delete Last Transaction\nJika ada transaksi terakhir yang ingin dihapus, user dapat menghapus transaksi terakhir melalui jalur ini",
+        "height": 288,
+        "width": 1168,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1120
+      ],
+      "id": "b5e808f7-bf9e-4aee-895b-5e65e25b36f2",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        1232
+      ],
+      "id": "2a53d5e5-949c-478c-9e31-bfc0430b621c",
+      "name": "Mencari Transaksi Terakhir1"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "row_number",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        288,
+        1232
+      ],
+      "id": "9ac5cf81-9453-4315-aedb-d4e3b0b7bd0c",
+      "name": "Sort1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        480,
+        1232
+      ],
+      "id": "7d56ae8e-b031-4f92-ac7a-5f41eb9a0f5e",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "startIndex": "={{ $json.row_number }}"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        1232
+      ],
+      "id": "ef5224fc-b6e0-405a-a05d-c114d025885e",
+      "name": "Hapus Transaksi Terakhir"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{\n\"🗑️ *TRANSAKSI BERHASIL DIHAPUS!*\\n\\n\" +\n\n\"Data berikut telah dihapus permanen dari database:\\n\" +\n\"------------------------------------------\\n\" +\n\"📅 *Tanggal:* \" + $('Limit1').item.json.Date + \"\\n\" +\n\"💰 *Nominal:* Rp \" + $('Limit1').item.json.Total.toLocaleString('id-ID') + \"\\n\" +\n\"🏷️ *Kategori:* \" + $('Limit1').item.json.Category + \"\\n\" +\n\"🏬 *Merchant:* \" + $('Limit1').item.json.Merchant + \"\\n\" +\n\"📝 *Item:* \" + $('Limit1').item.json.Items + \"\\n\" +\n\"------------------------------------------\\n\\n\" +\n\n\"📌 *Catatan:* Data di baris ke-\" + $('Limit1').item.json.row_number + \" sudah dikosongkan.\\n\\n\" +\n\n\"📊 *Cek Dashboard:* \\nYOUR_DASHBOARD_URL\\n\\n\" +\n\n\"_Kalau ini tidak sengaja, silakan input ulang transaksinya secara manual ya!_\"\n}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        1232
+      ],
+      "id": "090e1bf8-8899-471c-85b6-8c8792f3be0c",
+      "name": "Konfirmasi Hapus Transaksi"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Gambar": {
+      "main": [
+        [
+          {
+            "node": "Upload gambar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Convert Binary to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Masuk ke database Laporan Keuangan": {
+      "main": [
+        [
+          {
+            "node": "Konfirmasi Keberhasilan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Database Laporan Keuangan": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Kirim pesan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apakah Nota Valid?": {
+      "main": [
+        [
+          {
+            "node": "Masuk ke database Laporan Keuangan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Menanyakan Kejelasan Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Mencari Transaksi Terakhir",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Gambar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mencari Transaksi Terakhir1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mendapatkan data transaksi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (OCR)": {
+      "main": [
+        [
+          {
+            "node": "Parsing Code (Gatekeeper & Formatter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Parsing Code (Gatekeeper & Formatter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Binary to Base64": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (OCR)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsing Code (Gatekeeper & Formatter)": {
+      "main": [
+        [
+          {
+            "node": "Apakah Nota Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mendapatkan data transaksi": {
+      "main": [
+        [
+          {
+            "node": "Cleaning and Logic Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleaning and Logic Filter": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ekstraksi Koreksi",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ekstraksi Koreksi": {
+      "main": [
+        [
+          {
+            "node": "Data Parsing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update transaksi": {
+      "main": [
+        [
+          {
+            "node": "Konfirmasi edit transaksi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mencari Transaksi Terakhir": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Ekstraksi Koreksi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfirmasi edit transaksi": {
+      "main": [
+        []
+      ]
+    },
+    "Data Parsing": {
+      "main": [
+        [
+          {
+            "node": "Update transaksi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mencari Transaksi Terakhir1": {
+      "main": [
+        [
+          {
+            "node": "Sort1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Hapus Transaksi Terakhir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hapus Transaksi Terakhir": {
+      "main": [
+        [
+          {
+            "node": "Konfirmasi Hapus Transaksi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
